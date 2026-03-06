@@ -27,7 +27,7 @@
     .card { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 14px; margin: 12px 0; }
     .row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
     .muted { color: #bdbdbd; }
-    .big { font-size: 44px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+    .big { font-size: 56px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
     .mono { font-variant-numeric: tabular-nums; }
 
     .btnrow { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
@@ -124,11 +124,18 @@
         </div>
       </div>
 
-      <div class="btnrow">
-        <button id="redBtn" class="red">Red</button>
-        <button id="amberBtn" class="amber">Amber</button>
-        <button id="greenBtn" class="green">Green</button>
-      </div>
+.btnrow {
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.btnrow button {
+  height: 90px;
+  font-size: 24px;
+  border-radius: 18px;
+}
 
       <div class="totals">
         <div class="line">
@@ -152,7 +159,7 @@
       </div>
     </section>
 
-    <section class="card">
+    <section class="card" style="margin-top:60px;">
       <div class="historyHeader">
         <strong>Pie chart (selected day)</strong>
         <span class="small muted">Percent split</span>

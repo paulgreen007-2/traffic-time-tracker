@@ -1,31 +1,24 @@
-/* Traffic Time Tracker
-   - 3 colours only
-   - Tap colour: start/switch
-   - Tap same colour: stop
-   - Stops at midnight (we stop any running session at end of its start day)
-   - Manual edit + add entry (any date; automatically switches selected day)
-   - Infinite history
-   - Percentages + pie chart
-   - CSV export
-   - Local-only storage for now
-   - NEW: highlights the currently running colour button (adds .running class)
-*/
-
 const STORAGE_KEY = "traffic_time_tracker_v1";
 
 const COLORS = ["red", "amber", "green"];
-const COLOR_LABEL = { red: "Red", amber: "Amber", green: "Green" };
+const COLOR_LABEL = { red: "RED", amber: "AMBER", green: "GREEN" };
 const COLOR_HEX = { red: "#ff4d4d", amber: "#ffcc00", green: "#25c16f" };
 
 const el = (id) => document.getElementById(id);
 
 const state = {
-  sessions: [],        // { id, color, startISO, endISO }
-  selectedDayISO: null // yyyy-mm-dd (local)
+  sessions: [],
+  selectedDayISO: null
 };
 
-// ---------- Utilities ----------
-function pad(n) { return String(n).padStart(2, "0"); }
+const modal = {
+  mode: "edit",
+  sessionId: null
+};
+
+function pad(n) {
+  return String(n).padStart(2, "0");
+}
 
 function uuid() {
   return (crypto?.randomUUID?.() ?? `id_${Math.random().toString(16).slice(2)}_${Date.now()}`);
@@ -56,8 +49,14 @@ function formatHMS(seconds) {
   return `${pad(h)}:${pad(m)}:${pad(r)}`;
 }
 
+function formatHM(seconds) {
+  const s = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return `${pad(h)}:${pad(m)}`;
+}
+
 function toDateTimeLocalValue(date) {
-  // yyyy-mm-ddThh:mm
   const y = date.getFullYear();
   const m = pad(date.getMonth() + 1);
   const d = pad(date.getDate());
@@ -67,7 +66,6 @@ function toDateTimeLocalValue(date) {
 }
 
 function parseDateTimeLocalValue(value) {
-  // value like "2026-03-04T21:04"
   const [datePart, timePart] = value.split("T");
   const [y, m, d] = datePart.split("-").map(Number);
   const [hh, mm] = timePart.split(":").map(Number);
@@ -79,7 +77,6 @@ function pct(part, total) {
   return Math.round((part / total) * 100);
 }
 
-// ---------- Storage ----------
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
     sessions: state.sessions,
@@ -94,6 +91,7 @@ function load() {
     state.selectedDayISO = toLocalDayISO(new Date());
     return;
   }
+
   try {
     const data = JSON.parse(raw);
     state.sessions = Array.isArray(data.sessions) ? data.sessions : [];
@@ -104,13 +102,11 @@ function load() {
   }
 }
 
-// ---------- Running session rules ----------
 function getRunningSession() {
   return state.sessions.find(s => s.endISO == null) || null;
 }
 
 function stopAtMidnightIfNeeded() {
-  // If a session started on a previous day and is still running, stop it at end of start day.
   const running = getRunningSession();
   if (!running) return;
 
@@ -134,7 +130,6 @@ function startOrSwitch(color) {
   const nowISO = new Date().toISOString();
 
   if (running && running.color === color) {
-    // Tap same colour => stop
     running.endISO = nowISO;
     save();
     render();
@@ -142,7 +137,6 @@ function startOrSwitch(color) {
   }
 
   if (running && running.color !== color) {
-    // Switch colour => end current, start new
     running.endISO = nowISO;
   }
 
@@ -153,7 +147,6 @@ function startOrSwitch(color) {
     endISO: null
   });
 
-  // Keep user looking at today when they’re actively tracking.
   state.selectedDayISO = toLocalDayISO(new Date());
   save();
   render();
@@ -168,7 +161,6 @@ function stopRunning() {
   render();
 }
 
-// ---------- Day calculations ----------
 function sessionsForDay(dayISO) {
   const start = localDayStart(dayISO);
   const end = localDayEnd(dayISO);
@@ -176,7 +168,6 @@ function sessionsForDay(dayISO) {
   return state.sessions.filter(s => {
     const ss = new Date(s.startISO);
     const ee = new Date(s.endISO ?? new Date().toISOString());
-    // overlap with the day window
     return ee >= start && ss <= end;
   });
 }
@@ -206,6 +197,14 @@ function totalsForDay(dayISO) {
   return { totals, total };
 }
 
+function clampToDay(date, dayISO) {
+  const start = localDayStart(dayISO);
+  const end = localDayEnd(dayISO);
+  if (date < start) return start;
+  if (date > end) return end;
+  return date;
+}
+
 function dayLabel(dayISO) {
   const d = localDayStart(dayISO);
   return d.toLocaleDateString(undefined, {
@@ -226,11 +225,9 @@ function uniqueDaysFromSessions() {
     if (s.endISO) set.add(toLocalDayISO(new Date(s.endISO)));
   }
 
-  // newest-first
   return Array.from(set).sort((a, b) => (a > b ? -1 : 1));
 }
 
-// ---------- Pie chart ----------
 function drawPie(canvas, totals, total) {
   const ctx = canvas.getContext("2d");
   const w = canvas.width;
@@ -268,18 +265,16 @@ function drawPie(canvas, totals, total) {
     startAngle += slice;
   }
 
-  // donut hole
   ctx.beginPath();
   ctx.arc(cx, cy, r * 0.55, 0, Math.PI * 2);
   ctx.fillStyle = "#141414";
   ctx.fill();
-}
 
-// ---------- Modal (manual edit / add) ----------
-const modal = {
-  mode: "edit",    // "edit" | "add"
-  sessionId: null
-};
+  ctx.fillStyle = "#f4f4f4";
+  ctx.font = "24px -apple-system, system-ui, Segoe UI, Roboto, Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(formatHM(total), cx, cy + 8);
+}
 
 function openModalForSession(sessionId) {
   const s = state.sessions.find(x => x.id === sessionId);
@@ -289,12 +284,11 @@ function openModalForSession(sessionId) {
   modal.sessionId = sessionId;
 
   el("modalTitle").textContent = "Edit entry";
-  el("modalHint").textContent = "Edit start/end. Entries will be clamped to the selected day.";
+  el("modalHint").textContent = "Change this entry clearly below.";
   el("modalDeleteBtn").classList.remove("hidden");
 
   el("modalColor").value = s.color;
 
-  // For editing, we show values clamped to selected day so it stays simple.
   const dayISO = state.selectedDayISO;
   const startClamp = clampToDay(new Date(s.startISO), dayISO);
   const endClamp = clampToDay(new Date(s.endISO ?? new Date().toISOString()), dayISO);
@@ -310,7 +304,7 @@ function openModalAddEntry() {
   modal.sessionId = null;
 
   el("modalTitle").textContent = "Add entry";
-  el("modalHint").textContent = "Pick any date/time. The app will jump to that day after saving.";
+  el("modalHint").textContent = "Create a finished entry.";
   el("modalDeleteBtn").classList.add("hidden");
 
   const now = new Date();
@@ -327,14 +321,6 @@ function closeModal() {
   modal.mode = "edit";
   modal.sessionId = null;
   el("modalBackdrop").classList.remove("show");
-}
-
-function clampToDay(date, dayISO) {
-  const start = localDayStart(dayISO);
-  const end = localDayEnd(dayISO);
-  if (date < start) return start;
-  if (date > end) return end;
-  return date;
 }
 
 function saveModal() {
@@ -364,7 +350,7 @@ function saveModal() {
       endISO: end.toISOString()
     });
 
-    state.selectedDayISO = dayISO; // jump to that day
+    state.selectedDayISO = dayISO;
     save();
     closeModal();
     render();
@@ -396,17 +382,39 @@ function deleteModalSession() {
   if (modal.mode !== "edit") return;
   const id = modal.sessionId;
   if (!id) return;
-  state.sessions = state.sessions.filter(s => s.id !== id);
+
+  const s = state.sessions.find(x => x.id === id);
+  if (!s) return;
+
+  const startText = new Date(s.startISO).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const endText = new Date(s.endISO ?? new Date()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const ok = confirm(`Delete this ${s.color} entry from ${startText} to ${endText}?`);
+  if (!ok) return;
+
+  state.sessions = state.sessions.filter(x => x.id !== id);
   save();
   closeModal();
   render();
 }
 
-// ---------- CSV export ----------
+function deleteEntryById(sessionId) {
+  const s = state.sessions.find(x => x.id === sessionId);
+  if (!s) return;
+
+  const startText = new Date(s.startISO).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const endText = new Date(s.endISO ?? new Date()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const ok = confirm(`Delete this ${s.color} entry from ${startText} to ${endText}?`);
+  if (!ok) return;
+
+  state.sessions = state.sessions.filter(x => x.id !== sessionId);
+  save();
+  render();
+}
+
 function exportCSV() {
   stopAtMidnightIfNeeded();
 
-  const days = uniqueDaysFromSessions().slice().sort(); // oldest-first
+  const days = uniqueDaysFromSessions().slice().sort();
   const rows = [];
   rows.push(["day","red_seconds","amber_seconds","green_seconds","total_seconds","red_pct","amber_pct","green_pct"].join(","));
 
@@ -435,7 +443,105 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
-// ---------- Render ----------
+function renderSelectedDayEntries(dayISO) {
+  const container = el("selectedDayEntries");
+  container.innerHTML = "";
+
+  const daySessions = sessionsForDay(dayISO)
+    .map(s => ({ ...s, secs: secondsOfSessionWithinDay(s, dayISO) }))
+    .filter(s => s.secs > 0)
+    .sort((a, b) => new Date(a.startISO) - new Date(b.startISO));
+
+  if (daySessions.length === 0) {
+    container.innerHTML = `<div class="emptyState">No entries for this day yet.</div>`;
+    return;
+  }
+
+  for (const s of daySessions) {
+    const start = new Date(s.startISO).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const end = new Date(s.endISO ?? new Date().toISOString()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+    const card = document.createElement("div");
+    card.className = "entryCard";
+    card.innerHTML = `
+      <div class="entryTop">
+        <div class="entryColor">
+          <span class="dot" style="background:${COLOR_HEX[s.color]}"></span>
+          <span>${COLOR_LABEL[s.color]}</span>
+        </div>
+        <div class="entryDuration">${formatHMS(s.secs)}</div>
+      </div>
+      <div class="entryTimes">${start} → ${end}</div>
+      <div class="entryActions">
+        <button class="secondary" data-edit-entry="${s.id}">Edit</button>
+        <button class="danger" data-delete-entry="${s.id}">Delete</button>
+      </div>
+    `;
+    container.appendChild(card);
+  }
+}
+
+function renderLiveArea() {
+  const running = getRunningSession();
+
+  el("redBtn").classList.remove("running");
+  el("amberBtn").classList.remove("running");
+  el("greenBtn").classList.remove("running");
+
+  if (running) {
+    const elapsed = (Date.now() - new Date(running.startISO).getTime()) / 1000;
+    const label = COLOR_LABEL[running.color];
+
+    el("runningPill").classList.remove("hidden");
+    el("currentStatus").textContent = label;
+    el("currentElapsed").textContent = `Elapsed: ${formatHMS(elapsed)}`;
+
+    el("liveLabel").textContent = label;
+    el("liveLabel").style.color = COLOR_HEX[running.color];
+    el("liveTimer").textContent = formatHMS(elapsed);
+    el("liveSub").textContent = "Timer is running right now";
+
+    el(running.color + "Btn").classList.add("running");
+  } else {
+    el("runningPill").classList.add("hidden");
+    el("currentStatus").textContent = "Stopped";
+    el("currentElapsed").textContent = "";
+
+    el("liveLabel").textContent = "STOPPED";
+    el("liveLabel").style.color = "#f4f4f4";
+    el("liveTimer").textContent = "00:00:00";
+    el("liveSub").textContent = "No timer running";
+  }
+}
+
+function renderHistoryDays() {
+  const days = uniqueDaysFromSessions();
+  const ul = el("historyList");
+  ul.innerHTML = "";
+
+  for (const dayISO of days) {
+    const dlabel = dayLabel(dayISO);
+    const { totals: t, total: tt } = totalsForDay(dayISO);
+
+    const li = document.createElement("li");
+    li.className = "dayItem";
+
+    li.innerHTML = `
+      <div class="dayTitle">
+        <span class="link" data-day="${dayISO}">${dlabel}</span>
+      </div>
+      <div class="dayMeta">
+        Total ${formatHMS(tt)} ·
+        R ${pct(t.red, tt)}% ·
+        A ${pct(t.amber, tt)}% ·
+        G ${pct(t.green, tt)}%
+      </div>
+    `;
+
+    ul.appendChild(li);
+  }
+}
+
 function render() {
   stopAtMidnightIfNeeded();
 
@@ -452,84 +558,14 @@ function render() {
   el("amberPct").textContent = `${pct(totals.amber, total)}%`;
   el("greenPct").textContent = `${pct(totals.green, total)}%`;
 
-  // NEW: clear any previous highlight
-  el("redBtn").classList.remove("running");
-  el("amberBtn").classList.remove("running");
-  el("greenBtn").classList.remove("running");
-
-  const running = getRunningSession();
-  if (running) {
-    el("runningPill").classList.remove("hidden");
-    el("currentStatus").textContent = COLOR_LABEL[running.color];
-    const elapsed = (Date.now() - new Date(running.startISO).getTime()) / 1000;
-    el("currentElapsed").textContent = `Elapsed: ${formatHMS(elapsed)}`;
-
-    // NEW: highlight the running colour button
-    el(running.color + "Btn").classList.add("running");
-  } else {
-    el("runningPill").classList.add("hidden");
-    el("currentStatus").textContent = "Stopped";
-    el("currentElapsed").textContent = "";
-  }
-
+  renderLiveArea();
+  renderSelectedDayEntries(selected);
+  renderHistoryDays();
   drawPie(el("pieCanvas"), totals, total);
-
-  // History list (newest first)
-  const days = uniqueDaysFromSessions(); // newest-first
-  const ul = el("historyList");
-  ul.innerHTML = "";
-
-  for (const dayISO of days) {
-    const dlabel = dayLabel(dayISO);
-    const { totals: t, total: tt } = totalsForDay(dayISO);
-
-    const li = document.createElement("li");
-    li.className = "dayItem";
-
-    const title = document.createElement("div");
-    title.className = "dayTitle";
-    title.innerHTML = `<span class="link" data-day="${dayISO}">${dlabel}</span>`;
-
-    const meta = document.createElement("div");
-    meta.className = "dayMeta";
-    meta.innerHTML = `
-      Total ${formatHMS(tt)} ·
-      R ${pct(t.red, tt)}% ·
-      A ${pct(t.amber, tt)}% ·
-      G ${pct(t.green, tt)}%
-    `;
-
-    const daySessions = sessionsForDay(dayISO)
-      .map(s => ({ ...s, secs: secondsOfSessionWithinDay(s, dayISO) }))
-      .filter(s => s.secs > 0)
-      .sort((a, b) => new Date(a.startISO) - new Date(b.startISO));
-
-    const details = document.createElement("div");
-    details.className = "small muted";
-    details.style.marginTop = "6px";
-
-    if (daySessions.length === 0) {
-      details.textContent = "No entries.";
-    } else {
-      const toShow = daySessions.slice(0, 4);
-      details.innerHTML = toShow.map(s => {
-        const start = new Date(s.startISO).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        const end = new Date(s.endISO ?? new Date().toISOString()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        return `<span class="link" data-edit="${s.id}">${COLOR_LABEL[s.color]} ${start}→${end} (${formatHMS(s.secs)})</span>`;
-      }).join(" · ");
-      if (daySessions.length > 4) details.innerHTML += " · …";
-    }
-
-    li.appendChild(title);
-    li.appendChild(meta);
-    li.appendChild(details);
-    ul.appendChild(li);
-  }
 
   save();
 }
 
-// ---------- Navigation ----------
 function gotoDay(offsetDays) {
   const cur = localDayStart(state.selectedDayISO);
   const next = new Date(cur.getTime() + offsetDays * 24 * 60 * 60 * 1000);
@@ -544,11 +580,9 @@ function gotoToday() {
   render();
 }
 
-// ---------- Init / wiring ----------
 function init() {
   load();
 
-  // Register service worker
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
   }
@@ -566,6 +600,7 @@ function init() {
   el("addEntryBtn").addEventListener("click", openModalAddEntry);
 
   el("modalCloseBtn").addEventListener("click", closeModal);
+  el("modalCloseBtnBottom").addEventListener("click", closeModal);
   el("modalSaveBtn").addEventListener("click", saveModal);
   el("modalDeleteBtn").addEventListener("click", deleteModalSession);
 
@@ -582,22 +617,30 @@ function init() {
       state.selectedDayISO = day;
       save();
       render();
-      return;
     }
+  });
 
-    const editId = t.getAttribute("data-edit");
+  el("selectedDayEntries").addEventListener("click", (e) => {
+    const t = e.target;
+    if (!(t instanceof HTMLElement)) return;
+
+    const editId = t.getAttribute("data-edit-entry");
     if (editId) {
-      // If user taps a running entry, stop it first
       const running = getRunningSession();
       if (running && running.id === editId) {
         running.endISO = new Date().toISOString();
         save();
       }
       openModalForSession(editId);
+      return;
+    }
+
+    const deleteId = t.getAttribute("data-delete-entry");
+    if (deleteId) {
+      deleteEntryById(deleteId);
     }
   });
 
-  // Update UI every second (elapsed time + totals)
   setInterval(() => {
     render();
   }, 1000);

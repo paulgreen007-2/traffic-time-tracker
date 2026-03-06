@@ -30,15 +30,27 @@
     .big { font-size: 56px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
     .mono { font-variant-numeric: tabular-nums; }
 
-    .btnrow { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .btnrow {
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .btnrow button {
+      height: 90px;
+      font-size: 24px;
+      border-radius: 18px;
+    }
+
     button { border: 0; border-radius: 16px; padding: 14px 12px; font-weight: 900; cursor: pointer; }
     button:active { transform: translateY(1px); }
-    /* Highlight the currently running colour */
-.running {
-  outline: 4px solid #ffffff;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 6px rgba(255,255,255,0.12);
-}
+
+    .running {
+      outline: 4px solid #ffffff;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 6px rgba(255,255,255,0.12);
+    }
 
     .red    { background: #ff4d4d; color: #1b0000; }
     .amber  { background: #ffcc00; color: #1a1200; }
@@ -64,7 +76,6 @@
     .dayMeta { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; color:#bdbdbd; font-size: 12px; }
     .link { color:#f4f4f4; text-decoration: underline; text-decoration-color: #444; cursor: pointer; }
 
-    /* Modal */
     .modalBackdrop {
       position: fixed; inset: 0; background: rgba(0,0,0,0.55);
       display:none; align-items:center; justify-content:center; z-index: 50;
@@ -124,18 +135,11 @@
         </div>
       </div>
 
-.btnrow {
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-  margin-top: 18px;
-}
-
-.btnrow button {
-  height: 90px;
-  font-size: 24px;
-  border-radius: 18px;
-}
+      <div class="btnrow">
+        <button id="redBtn" class="red">Red</button>
+        <button id="amberBtn" class="amber">Amber</button>
+        <button id="greenBtn" class="green">Green</button>
+      </div>
 
       <div class="totals">
         <div class="line">
@@ -190,7 +194,6 @@
     </div>
   </div>
 
-  <!-- Modal -->
   <div id="modalBackdrop" class="modalBackdrop" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modalHeader">

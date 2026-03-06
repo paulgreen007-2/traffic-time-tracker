@@ -19,7 +19,7 @@
     }
     .toprow { display:flex; align-items:center; justify-content:space-between; gap:12px; }
     h1 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: .2px; }
-    .sub { margin-top: 6px; color: #bdbdbd; font-size: 12px; display:flex; gap:10px; align-items:center; }
+    .sub { margin-top: 6px; color: #bdbdbd; font-size: 12px; display:flex; gap:10px; align-items:center; flex-wrap: wrap; }
     .pill { font-size: 12px; padding: 4px 10px; border: 1px solid #2a2a2a; border-radius: 999px; color:#cfcfcf; }
 
     main { padding: 14px 16px 120px; max-width: 780px; margin: 0 auto; }
@@ -29,6 +29,31 @@
     .muted { color: #bdbdbd; }
     .big { font-size: 56px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
     .mono { font-variant-numeric: tabular-nums; }
+
+    .liveCard {
+      text-align: center;
+      padding-top: 18px;
+      padding-bottom: 18px;
+    }
+    .liveLabel {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .liveTimer {
+      font-size: 64px;
+      line-height: 1;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .liveSub {
+      font-size: 14px;
+      color: #bdbdbd;
+      min-height: 20px;
+    }
 
     .btnrow {
       display:grid;
@@ -60,8 +85,8 @@
     .danger { background: #3a1a1a; color: #ffd4d4; font-weight: 800; }
 
     .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .totals { display:grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px; }
-    .line { display:flex; align-items:center; justify-content:space-between; gap: 12px; padding: 10px 12px; border: 1px solid #242424; border-radius: 14px; background:#101010; }
+    .totals { display:grid; grid-template-columns: 1fr; gap: 8px; margin-top: 14px; }
+    .line { display:flex; align-items:center; justify-content:space-between; gap: 12px; padding: 12px 14px; border: 1px solid #242424; border-radius: 14px; background:#101010; }
     .dot { width: 10px; height: 10px; border-radius: 99px; display:inline-block; margin-right: 10px; }
     .label { display:flex; align-items:center; font-weight: 800; }
     .small { font-size: 12px; color:#bdbdbd; }
@@ -76,6 +101,58 @@
     .dayMeta { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; color:#bdbdbd; font-size: 12px; }
     .link { color:#f4f4f4; text-decoration: underline; text-decoration-color: #444; cursor: pointer; }
 
+    .entryList {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .entryCard {
+      border: 1px solid #252525;
+      background: #101010;
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .entryTop {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom: 8px;
+    }
+    .entryColor {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .entryDuration {
+      font-size: 20px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+    .entryTimes {
+      font-size: 15px;
+      color:#cfcfcf;
+      margin-bottom: 12px;
+    }
+    .entryActions {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .entryActions button {
+      min-height: 48px;
+      font-size: 16px;
+    }
+    .emptyState {
+      padding: 14px;
+      border: 1px dashed #2b2b2b;
+      border-radius: 14px;
+      color: #bdbdbd;
+      text-align: center;
+    }
+
     .modalBackdrop {
       position: fixed; inset: 0; background: rgba(0,0,0,0.55);
       display:none; align-items:center; justify-content:center; z-index: 50;
@@ -88,16 +165,23 @@
       border-radius: 18px; overflow: hidden;
     }
     .modalHeader { padding: 14px 14px 10px; border-bottom: 1px solid #242424; display:flex; align-items:center; justify-content:space-between; gap: 12px; }
-    .modalHeader strong { font-size: 14px; }
+    .modalHeader strong { font-size: 16px; }
     .modalBody { padding: 14px; }
-    label { display:block; font-size: 12px; color: #bdbdbd; margin: 10px 0 6px; }
+    label { display:block; font-size: 13px; color: #bdbdbd; margin: 12px 0 6px; }
     select, input {
       width: 100%; box-sizing: border-box;
       background: #0f0f0f; color: #f4f4f4;
       border: 1px solid #2a2a2a; border-radius: 14px;
-      padding: 12px;
+      padding: 14px;
+      font-size: 16px;
     }
-    .modalFooter { padding: 14px; border-top: 1px solid #242424; display:flex; gap:10px; justify-content:flex-end; }
+    .modalFooter {
+      padding: 14px;
+      border-top: 1px solid #242424;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:10px;
+    }
 
     .footerbar {
       position: fixed; left: 0; right: 0; bottom: 0;
@@ -107,6 +191,12 @@
     }
     .footerbar .row { max-width: 780px; margin: 0 auto; }
     .hidden { display:none; }
+
+    @media (max-width: 640px) {
+      .big { font-size: 44px; }
+      .liveTimer { font-size: 48px; }
+      .entryTop { align-items:flex-start; flex-direction:column; }
+    }
   </style>
 </head>
 <body>
@@ -122,6 +212,12 @@
   </header>
 
   <main>
+    <section class="card liveCard">
+      <div id="liveLabel" class="liveLabel">STOPPED</div>
+      <div id="liveTimer" class="liveTimer">00:00:00</div>
+      <div id="liveSub" class="liveSub">No timer running</div>
+    </section>
+
     <section class="card">
       <div class="row">
         <div>
@@ -163,26 +259,27 @@
       </div>
     </section>
 
+    <section class="card">
+      <div class="row" style="margin-bottom:10px">
+        <strong>Entries for selected day</strong>
+        <button id="addEntryBtn" class="secondary">Add entry</button>
+      </div>
+      <div id="selectedDayEntries" class="entryList"></div>
+    </section>
+
     <section class="card" style="margin-top:60px;">
       <div class="historyHeader">
         <strong>Pie chart (selected day)</strong>
         <span class="small muted">Percent split</span>
       </div>
       <canvas id="pieCanvas" width="800" height="360"></canvas>
-      <div class="small muted" style="margin-top:10px">
-        Tip: tap a day below to view it. Entries can be edited.
-      </div>
     </section>
 
     <section class="card">
       <div class="row" style="margin-bottom:10px">
-        <strong>History (infinite)</strong>
-        <div class="row" style="gap:10px">
-          <button id="addEntryBtn" class="secondary">Add entry</button>
-          <button id="exportBtn" class="secondary">Export CSV</button>
-        </div>
+        <strong>History (days)</strong>
+        <button id="exportBtn" class="secondary">Export CSV</button>
       </div>
-
       <ul id="historyList" class="historyList"></ul>
     </section>
   </main>
@@ -215,14 +312,11 @@
 
         <label>End</label>
         <input id="modalEnd" type="datetime-local" />
-
-        <div class="small muted" style="margin-top:10px">
-          Note: entries can’t cross midnight. If you try, we’ll clamp to the selected day.
-        </div>
       </div>
       <div class="modalFooter">
         <button id="modalDeleteBtn" class="danger">Delete</button>
         <button id="modalSaveBtn" class="secondary">Save</button>
+        <button id="modalCloseBtnBottom" class="secondary">Cancel</button>
       </div>
     </div>
   </div>

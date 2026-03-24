@@ -3,191 +3,155 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b0b0b" />
-  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f5f5f5" />
   <title>Traffic Time Tracker</title>
   <style>
-    :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif; }
-    body { margin: 0; background: #0b0b0b; color: #f4f4f4; }
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;800;900&display=swap');
+
+    :root {
+      --red:   #e53e3e;
+      --amber: #d69e00;
+      --green: #1a9e58;
+      --bg:    #f5f5f5;
+      --card:  #ffffff;
+      --border:#e0e0e0;
+      --muted: #777777;
+      --fg:    #111111;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    }
+
     header {
       padding: 16px 16px 10px;
-      border-bottom: 1px solid #202020;
+      border-bottom: 1px solid #e0e0e0;
       position: sticky; top: 0;
-      background: rgba(11,11,11,0.92);
+      background: rgba(245,245,245,0.92);
       backdrop-filter: blur(10px);
       z-index: 10;
     }
     .toprow { display:flex; align-items:center; justify-content:space-between; gap:12px; }
     h1 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: .2px; }
-    .sub { margin-top: 6px; color: #bdbdbd; font-size: 12px; display:flex; gap:10px; align-items:center; flex-wrap: wrap; }
-    .pill { font-size: 12px; padding: 4px 10px; border: 1px solid #2a2a2a; border-radius: 999px; color:#cfcfcf; }
+    .sub { margin-top: 6px; color: var(--muted); font-size: 12px; display:flex; gap:10px; align-items:center; flex-wrap: wrap; }
+    .pill { font-size: 12px; padding: 4px 10px; border: 1px solid #d0d0d0; border-radius: 999px; color:#555; }
 
     main { padding: 14px 16px 120px; max-width: 780px; margin: 0 auto; }
 
-    .card { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 14px; margin: 12px 0; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; margin: 12px 0; }
     .row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .muted { color: #bdbdbd; }
-    .big { font-size: 56px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
-    .mono { font-variant-numeric: tabular-nums; }
+    .muted { color: var(--muted); }
+    .big { font-size: 56px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: .5px; font-family: 'JetBrains Mono', monospace; }
+    .mono { font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }
 
-    .liveCard {
-      text-align: center;
-      padding-top: 18px;
-      padding-bottom: 18px;
-    }
-    .liveLabel {
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
+    .liveCard { text-align: center; padding-top: 18px; padding-bottom: 18px; }
+    .liveLabel { font-size: 18px; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; }
     .liveTimer {
-      font-size: 64px;
-      line-height: 1;
-      font-weight: 900;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 1px;
+      font-size: 64px; line-height: 1; font-weight: 900;
+      font-variant-numeric: tabular-nums; letter-spacing: 1px;
       margin-bottom: 8px;
+      font-family: 'JetBrains Mono', monospace;
     }
-    .liveSub {
-      font-size: 14px;
-      color: #bdbdbd;
-      min-height: 20px;
-    }
+    .liveSub { font-size: 14px; color: var(--muted); min-height: 20px; }
 
-    .btnrow {
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-      margin-top: 18px;
-    }
+    .btnrow { display:grid; grid-template-columns: 1fr; gap: 14px; margin-top: 18px; }
+    .btnrow button { height: 90px; font-size: 24px; border-radius: 18px; font-weight: 900; }
 
-    .btnrow button {
-      height: 90px;
-      font-size: 24px;
-      border-radius: 18px;
+    button {
+      border: 0; border-radius: 16px; padding: 14px 12px;
+      font-weight: 900; cursor: pointer;
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      transition: transform 0.1s, opacity 0.1s;
     }
-
-    button { border: 0; border-radius: 16px; padding: 14px 12px; font-weight: 900; cursor: pointer; }
-    button:active { transform: translateY(1px); }
+    button:active { transform: translateY(1px); opacity: 0.85; }
 
     .running {
-      outline: 4px solid #ffffff;
+      outline: 4px solid #111111;
       outline-offset: 2px;
-      box-shadow: 0 0 0 6px rgba(255,255,255,0.12);
+      box-shadow: 0 0 0 6px rgba(0,0,0,0.10);
     }
 
-    .red    { background: #ff4d4d; color: #1b0000; }
-    .amber  { background: #ffcc00; color: #1a1200; }
-    .green  { background: #25c16f; color: #03130a; }
-
-    .secondary { background: #2a2a2a; color: #f4f4f4; font-weight: 800; }
-    .danger { background: #3a1a1a; color: #ffd4d4; font-weight: 800; }
+    .red    { background: var(--red);   color: #fff; }
+    .amber  { background: var(--amber); color: #fff; }
+    .green  { background: var(--green); color: #fff; }
+    .secondary { background: #e8e8e8; color: var(--fg); font-weight: 800; }
+    .danger    { background: #fde8e8; color: #9b1c1c; font-weight: 800; }
 
     .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .totals { display:grid; grid-template-columns: 1fr; gap: 8px; margin-top: 14px; }
-    .line { display:flex; align-items:center; justify-content:space-between; gap: 12px; padding: 12px 14px; border: 1px solid #242424; border-radius: 14px; background:#101010; }
+    .line {
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 12px; padding: 12px 14px;
+      border: 1px solid #e8e8e8; border-radius: 14px; background:#f9f9f9;
+    }
     .dot { width: 10px; height: 10px; border-radius: 99px; display:inline-block; margin-right: 10px; }
     .label { display:flex; align-items:center; font-weight: 800; }
-    .small { font-size: 12px; color:#bdbdbd; }
+    .small { font-size: 12px; color: var(--muted); }
 
-    canvas { width: 100%; height: 180px; display:block; }
     .historyHeader { display:flex; align-items:center; justify-content:space-between; gap: 10px; margin-bottom: 8px; }
 
     .historyList { list-style: none; padding: 0; margin: 0; }
-    .dayItem { border-top: 1px solid #242424; padding: 12px 0; }
+    .dayItem { border-top: 1px solid #e8e8e8; padding: 12px 0; }
     .dayItem:first-child { border-top: 0; }
     .dayTitle { font-weight: 900; }
-    .dayMeta { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; color:#bdbdbd; font-size: 12px; }
-    .link { color:#f4f4f4; text-decoration: underline; text-decoration-color: #444; cursor: pointer; }
+    .dayMeta { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; color: var(--muted); font-size: 12px; }
+    .link { color: #1a56db; text-decoration: underline; text-decoration-color: #93c5fd; cursor: pointer; }
 
-    .entryList {
-      display: grid;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .entryCard {
-      border: 1px solid #252525;
-      background: #101010;
-      border-radius: 16px;
-      padding: 14px;
-    }
+    .entryList { display: grid; gap: 12px; margin-top: 12px; }
+    .entryCard { border: 1px solid #e8e8e8; background: #f9f9f9; border-radius: 16px; padding: 14px; }
     .entryTop {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      margin-bottom: 8px;
+      display:flex; justify-content:space-between;
+      align-items:center; gap:12px; margin-bottom: 8px;
     }
-    .entryColor {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-size: 18px;
-      font-weight: 900;
-    }
-    .entryDuration {
-      font-size: 20px;
-      font-weight: 900;
-      font-variant-numeric: tabular-nums;
-    }
-    .entryTimes {
-      font-size: 15px;
-      color:#cfcfcf;
-      margin-bottom: 12px;
-    }
-    .entryActions {
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    .entryActions button {
-      min-height: 48px;
-      font-size: 16px;
-    }
+    .entryColor { display:flex; align-items:center; gap:10px; font-size: 18px; font-weight: 900; }
+    .entryDuration { font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }
+    .entryTimes { font-size: 15px; color:#555; margin-bottom: 12px; }
+    .entryActions { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    .entryActions button { min-height: 48px; font-size: 16px; }
     .emptyState {
-      padding: 14px;
-      border: 1px dashed #2b2b2b;
-      border-radius: 14px;
-      color: #bdbdbd;
-      text-align: center;
+      padding: 14px; border: 1px dashed #ccc;
+      border-radius: 14px; color: var(--muted); text-align: center;
     }
 
     .modalBackdrop {
       position: fixed; inset: 0; background: rgba(0,0,0,0.55);
-      display:none; align-items:center; justify-content:center; z-index: 50;
-      padding: 18px;
+      display:none; align-items:center; justify-content:center;
+      z-index: 50; padding: 18px;
     }
     .modalBackdrop.show { display:flex; }
     .modal {
       width: 100%; max-width: 520px;
-      background: #131313; border: 1px solid #2a2a2a;
+      background: #ffffff; border: 1px solid #e0e0e0;
       border-radius: 18px; overflow: hidden;
     }
-    .modalHeader { padding: 14px 14px 10px; border-bottom: 1px solid #242424; display:flex; align-items:center; justify-content:space-between; gap: 12px; }
+    .modalHeader {
+      padding: 14px 14px 10px; border-bottom: 1px solid #e8e8e8;
+      display:flex; align-items:center; justify-content:space-between; gap: 12px;
+    }
     .modalHeader strong { font-size: 16px; }
     .modalBody { padding: 14px; }
-    label { display:block; font-size: 13px; color: #bdbdbd; margin: 12px 0 6px; }
+    label { display:block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; }
     select, input {
       width: 100%; box-sizing: border-box;
-      background: #0f0f0f; color: #f4f4f4;
-      border: 1px solid #2a2a2a; border-radius: 14px;
-      padding: 14px;
-      font-size: 16px;
+      background: #f9f9f9; color: var(--fg);
+      border: 1px solid #d0d0d0; border-radius: 14px;
+      padding: 14px; font-size: 16px;
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
     }
     .modalFooter {
-      padding: 14px;
-      border-top: 1px solid #242424;
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap:10px;
+      padding: 14px; border-top: 1px solid #e8e8e8;
+      display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;
     }
 
     .footerbar {
       position: fixed; left: 0; right: 0; bottom: 0;
-      background: rgba(11,11,11,0.92); backdrop-filter: blur(10px);
-      border-top: 1px solid #202020;
-      padding: 10px 16px;
+      background: rgba(245,245,245,0.92); backdrop-filter: blur(10px);
+      border-top: 1px solid #e0e0e0; padding: 10px 16px;
     }
     .footerbar .row { max-width: 780px; margin: 0 auto; }
     .hidden { display:none; }
@@ -267,13 +231,6 @@
       <div id="selectedDayEntries" class="entryList"></div>
     </section>
 
-    <section class="card" style="margin-top:60px;">
-      <div class="historyHeader">
-        <strong>Pie chart (selected day)</strong>
-        <span class="small muted">Percent split</span>
-      </div>
-      <canvas id="pieCanvas" width="800" height="360"></canvas>
-    </section>
 
     <section class="card">
       <div class="row" style="margin-bottom:10px">
@@ -299,17 +256,14 @@
       </div>
       <div class="modalBody">
         <div class="small muted" id="modalHint"></div>
-
         <label>Colour</label>
         <select id="modalColor">
           <option value="red">Red</option>
           <option value="amber">Amber</option>
           <option value="green">Green</option>
         </select>
-
         <label>Start</label>
         <input id="modalStart" type="datetime-local" />
-
         <label>End</label>
         <input id="modalEnd" type="datetime-local" />
       </div>
@@ -321,6 +275,441 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    const STORAGE_KEY = "traffic_time_tracker_v1";
+    const COLORS = ["red", "amber", "green"];
+    const COLOR_LABEL = { red: "RED", amber: "AMBER", green: "GREEN" };
+    const COLOR_HEX   = { red: "#ff4d4d", amber: "#ffcc00", green: "#25c16f" };
+
+    const el = id => document.getElementById(id);
+
+    const state = { sessions: [], selectedDayISO: null };
+    const modal = { mode: "edit", sessionId: null };
+
+    function pad(n) { return String(n).padStart(2, "0"); }
+
+    function uuid() {
+      return crypto?.randomUUID?.() ?? `id_${Math.random().toString(16).slice(2)}_${Date.now()}`;
+    }
+
+    function toLocalDayISO(d) {
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    }
+
+    function localDayStart(dayISO) {
+      const [y,m,d] = dayISO.split("-").map(Number);
+      return new Date(y, m-1, d, 0, 0, 0, 0);
+    }
+
+    function localDayEnd(dayISO) {
+      const [y,m,d] = dayISO.split("-").map(Number);
+      return new Date(y, m-1, d, 23, 59, 59, 999);
+    }
+
+    function formatHMS(seconds) {
+      const s = Math.max(0, Math.floor(seconds));
+      return `${pad(Math.floor(s/3600))}:${pad(Math.floor((s%3600)/60))}:${pad(s%60)}`;
+    }
+
+    function formatHM(seconds) {
+      const s = Math.max(0, Math.floor(seconds));
+      return `${pad(Math.floor(s/3600))}:${pad(Math.floor((s%3600)/60))}`;
+    }
+
+    function toDateTimeLocalValue(date) {
+      return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    function parseDateTimeLocalValue(value) {
+      const [datePart, timePart] = value.split("T");
+      const [y,m,d] = datePart.split("-").map(Number);
+      const [hh,mm] = timePart.split(":").map(Number);
+      return new Date(y, m-1, d, hh, mm, 0, 0);
+    }
+
+    function pct(part, total) {
+      if (total <= 0) return 0;
+      return Math.round((part / total) * 100);
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        sessions: state.sessions,
+        selectedDayISO: state.selectedDayISO
+      }));
+    }
+
+    function load() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        state.sessions = [];
+        state.selectedDayISO = toLocalDayISO(new Date());
+        return;
+      }
+      try {
+        const data = JSON.parse(raw);
+        state.sessions = Array.isArray(data.sessions) ? data.sessions : [];
+        state.selectedDayISO = data.selectedDayISO || toLocalDayISO(new Date());
+      } catch {
+        state.sessions = [];
+        state.selectedDayISO = toLocalDayISO(new Date());
+      }
+    }
+
+    function getRunningSession() {
+      return state.sessions.find(s => s.endISO == null) || null;
+    }
+
+    function stopAtMidnightIfNeeded() {
+      const running = getRunningSession();
+      if (!running) return;
+      const startDay = toLocalDayISO(new Date(running.startISO));
+      const nowDay   = toLocalDayISO(new Date());
+      if (startDay !== nowDay) {
+        running.endISO = localDayEnd(startDay).toISOString();
+        save();
+      }
+    }
+
+    function startOrSwitch(color) {
+      stopAtMidnightIfNeeded();
+      const running = getRunningSession();
+      const nowISO = new Date().toISOString();
+
+      if (running && running.color === color) {
+        running.endISO = nowISO;
+        save(); render(); return;
+      }
+      if (running && running.color !== color) {
+        running.endISO = nowISO;
+      }
+      state.sessions.push({ id: uuid(), color, startISO: nowISO, endISO: null });
+      state.selectedDayISO = toLocalDayISO(new Date());
+      save(); render();
+    }
+
+    function stopRunning() {
+      stopAtMidnightIfNeeded();
+      const running = getRunningSession();
+      if (!running) return;
+      running.endISO = new Date().toISOString();
+      save(); render();
+    }
+
+    function sessionsForDay(dayISO) {
+      const start = localDayStart(dayISO);
+      const end   = localDayEnd(dayISO);
+      return state.sessions.filter(s => {
+        const ss = new Date(s.startISO);
+        const ee = new Date(s.endISO ?? new Date().toISOString());
+        return ee >= start && ss <= end;
+      });
+    }
+
+    function secondsOfSessionWithinDay(session, dayISO) {
+      const dayStart = localDayStart(dayISO);
+      const dayEnd   = localDayEnd(dayISO);
+      const s = new Date(session.startISO);
+      const e = new Date(session.endISO ?? new Date().toISOString());
+      const start = s < dayStart ? dayStart : s;
+      const end   = e > dayEnd   ? dayEnd   : e;
+      return Math.max(0, (end - start) / 1000);
+    }
+
+    function totalsForDay(dayISO) {
+      const daySessions = sessionsForDay(dayISO);
+      const totals = { red: 0, amber: 0, green: 0 };
+      for (const s of daySessions) totals[s.color] += secondsOfSessionWithinDay(s, dayISO);
+      return { totals, total: totals.red + totals.amber + totals.green };
+    }
+
+    function clampToDay(date, dayISO) {
+      const start = localDayStart(dayISO);
+      const end   = localDayEnd(dayISO);
+      if (date < start) return start;
+      if (date > end)   return end;
+      return date;
+    }
+
+    function dayLabel(dayISO) {
+      return localDayStart(dayISO).toLocaleDateString(undefined, {
+        weekday: "long", year: "numeric", month: "short", day: "numeric"
+      });
+    }
+
+    function uniqueDaysFromSessions() {
+      const set = new Set();
+      set.add(toLocalDayISO(new Date()));
+      for (const s of state.sessions) {
+        set.add(toLocalDayISO(new Date(s.startISO)));
+        if (s.endISO) set.add(toLocalDayISO(new Date(s.endISO)));
+      }
+      return Array.from(set).sort((a,b) => a > b ? -1 : 1);
+    }
+
+    function openModalForSession(sessionId) {
+      const s = state.sessions.find(x => x.id === sessionId);
+      if (!s) return;
+      modal.mode = "edit"; modal.sessionId = sessionId;
+      el("modalTitle").textContent = "Edit entry";
+      el("modalHint").textContent = "Change this entry below.";
+      el("modalDeleteBtn").classList.remove("hidden");
+      el("modalColor").value = s.color;
+      const dayISO = state.selectedDayISO;
+      el("modalStart").value = toDateTimeLocalValue(clampToDay(new Date(s.startISO), dayISO));
+      el("modalEnd").value   = toDateTimeLocalValue(clampToDay(new Date(s.endISO ?? new Date().toISOString()), dayISO));
+      el("modalBackdrop").classList.add("show");
+    }
+
+    function openModalAddEntry() {
+      modal.mode = "add"; modal.sessionId = null;
+      el("modalTitle").textContent = "Add entry";
+      el("modalHint").textContent = "Create a finished entry.";
+      el("modalDeleteBtn").classList.add("hidden");
+      const now = new Date();
+      const start = new Date(now.getTime() - 15 * 60 * 1000);
+      el("modalColor").value = "green";
+      el("modalStart").value = toDateTimeLocalValue(start);
+      el("modalEnd").value   = toDateTimeLocalValue(now);
+      el("modalBackdrop").classList.add("show");
+    }
+
+    function closeModal() {
+      modal.mode = "edit"; modal.sessionId = null;
+      el("modalBackdrop").classList.remove("show");
+    }
+
+    function saveModal() {
+      const color = el("modalColor").value;
+      if (!COLORS.includes(color)) { alert("Invalid colour."); return; }
+      const rawStart = parseDateTimeLocalValue(el("modalStart").value);
+      const rawEnd   = parseDateTimeLocalValue(el("modalEnd").value);
+
+      if (modal.mode === "add") {
+        const dayISO = toLocalDayISO(rawStart);
+        const start  = clampToDay(rawStart, dayISO);
+        const end    = clampToDay(rawEnd,   dayISO);
+        if (end <= start) { alert("End must be after start."); return; }
+        state.sessions.push({ id: uuid(), color, startISO: start.toISOString(), endISO: end.toISOString() });
+        state.selectedDayISO = dayISO;
+        save(); closeModal(); render(); return;
+      }
+
+      const s = state.sessions.find(x => x.id === modal.sessionId);
+      if (!s) return;
+      const dayISO = state.selectedDayISO;
+      const start  = clampToDay(rawStart, dayISO);
+      const end    = clampToDay(rawEnd,   dayISO);
+      if (end <= start) { alert("End must be after start."); return; }
+      s.color = color; s.startISO = start.toISOString(); s.endISO = end.toISOString();
+      save(); closeModal(); render();
+    }
+
+    function deleteModalSession() {
+      if (modal.mode !== "edit") return;
+      const id = modal.sessionId;
+      if (!id) return;
+      const s = state.sessions.find(x => x.id === id);
+      if (!s) return;
+      const startText = new Date(s.startISO).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+      const endText   = new Date(s.endISO ?? new Date()).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+      if (!confirm(`Delete this ${s.color} entry from ${startText} to ${endText}?`)) return;
+      state.sessions = state.sessions.filter(x => x.id !== id);
+      save(); closeModal(); render();
+    }
+
+    function deleteEntryById(sessionId) {
+      const s = state.sessions.find(x => x.id === sessionId);
+      if (!s) return;
+      const startText = new Date(s.startISO).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+      const endText   = new Date(s.endISO ?? new Date()).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+      if (!confirm(`Delete this ${s.color} entry from ${startText} to ${endText}?`)) return;
+      state.sessions = state.sessions.filter(x => x.id !== sessionId);
+      save(); render();
+    }
+
+    function exportCSV() {
+      stopAtMidnightIfNeeded();
+      const days = uniqueDaysFromSessions().slice().sort();
+      const rows = [["day","red_seconds","amber_seconds","green_seconds","total_seconds","red_pct","amber_pct","green_pct"].join(",")];
+      for (const dayISO of days) {
+        const { totals: t, total: tt } = totalsForDay(dayISO);
+        rows.push([dayISO, Math.round(t.red), Math.round(t.amber), Math.round(t.green), Math.round(tt),
+          pct(t.red,tt), pct(t.amber,tt), pct(t.green,tt)].join(","));
+      }
+      const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "traffic-time-tracker.csv";
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function renderSelectedDayEntries(dayISO) {
+      const container = el("selectedDayEntries");
+      container.innerHTML = "";
+      const daySessions = sessionsForDay(dayISO)
+        .map(s => ({ ...s, secs: secondsOfSessionWithinDay(s, dayISO) }))
+        .filter(s => s.secs > 0)
+        .sort((a,b) => new Date(a.startISO) - new Date(b.startISO));
+
+      if (daySessions.length === 0) {
+        container.innerHTML = `<div class="emptyState">No entries for this day yet.</div>`;
+        return;
+      }
+
+      for (const s of daySessions) {
+        const start = new Date(s.startISO).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+        const end   = new Date(s.endISO ?? new Date().toISOString()).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+        const card = document.createElement("div");
+        card.className = "entryCard";
+        card.innerHTML = `
+          <div class="entryTop">
+            <div class="entryColor">
+              <span class="dot" style="background:${COLOR_HEX[s.color]}"></span>
+              <span>${COLOR_LABEL[s.color]}</span>
+            </div>
+            <div class="entryDuration">${formatHMS(s.secs)}</div>
+          </div>
+          <div class="entryTimes">${start} → ${end}</div>
+          <div class="entryActions">
+            <button class="secondary" data-edit-entry="${s.id}">Edit</button>
+            <button class="danger"    data-delete-entry="${s.id}">Delete</button>
+          </div>`;
+        container.appendChild(card);
+      }
+    }
+
+    function renderLiveArea() {
+      const running = getRunningSession();
+      el("redBtn").classList.remove("running");
+      el("amberBtn").classList.remove("running");
+      el("greenBtn").classList.remove("running");
+
+      if (running) {
+        const elapsed = (Date.now() - new Date(running.startISO).getTime()) / 1000;
+        const label   = COLOR_LABEL[running.color];
+        el("runningPill").classList.remove("hidden");
+        el("currentStatus").textContent = label;
+        el("currentElapsed").textContent = `Elapsed: ${formatHMS(elapsed)}`;
+        el("liveLabel").textContent = label;
+        el("liveLabel").style.color = COLOR_HEX[running.color];
+        el("liveTimer").textContent = formatHMS(elapsed);
+        el("liveSub").textContent = "Timer is running right now";
+        el(running.color + "Btn").classList.add("running");
+      } else {
+        el("runningPill").classList.add("hidden");
+        el("currentStatus").textContent = "Stopped";
+        el("currentElapsed").textContent = "";
+        el("liveLabel").textContent = "STOPPED";
+        el("liveLabel").style.color = "#111111";
+        el("liveTimer").textContent = "00:00:00";
+        el("liveSub").textContent = "No timer running";
+      }
+    }
+
+    function renderHistoryDays() {
+      const days = uniqueDaysFromSessions();
+      const ul   = el("historyList");
+      ul.innerHTML = "";
+      for (const dayISO of days) {
+        const dlabel = dayLabel(dayISO);
+        const { totals: t, total: tt } = totalsForDay(dayISO);
+        const li = document.createElement("li");
+        li.className = "dayItem";
+        li.innerHTML = `
+          <div class="dayTitle">
+            <span class="link" data-day="${dayISO}">${dlabel}</span>
+          </div>
+          <div class="dayMeta">
+            Total ${formatHMS(tt)} ·
+            R ${pct(t.red,tt)}% ·
+            A ${pct(t.amber,tt)}% ·
+            G ${pct(t.green,tt)}%
+          </div>`;
+        ul.appendChild(li);
+      }
+    }
+
+    function render() {
+      stopAtMidnightIfNeeded();
+      const selected = state.selectedDayISO;
+      el("selectedDateLabel").textContent = dayLabel(selected);
+      const { totals, total } = totalsForDay(selected);
+      el("redTime").textContent   = formatHMS(totals.red);
+      el("amberTime").textContent = formatHMS(totals.amber);
+      el("greenTime").textContent = formatHMS(totals.green);
+      el("dayTotal").textContent  = formatHMS(total);
+      el("redPct").textContent    = `${pct(totals.red,   total)}%`;
+      el("amberPct").textContent  = `${pct(totals.amber, total)}%`;
+      el("greenPct").textContent  = `${pct(totals.green, total)}%`;
+      renderLiveArea();
+      renderSelectedDayEntries(selected);
+      renderHistoryDays();
+      save();
+    }
+
+    function gotoDay(offsetDays) {
+      const cur  = localDayStart(state.selectedDayISO);
+      const next = new Date(cur.getTime() + offsetDays * 86400000);
+      state.selectedDayISO = toLocalDayISO(next);
+      save(); render();
+    }
+
+    function gotoToday() {
+      state.selectedDayISO = toLocalDayISO(new Date());
+      save(); render();
+    }
+
+    function init() {
+      load();
+
+      el("redBtn").addEventListener("click",   () => startOrSwitch("red"));
+      el("amberBtn").addEventListener("click", () => startOrSwitch("amber"));
+      el("greenBtn").addEventListener("click", () => startOrSwitch("green"));
+
+      el("stopBtn").addEventListener("click",    stopRunning);
+      el("todayBtn").addEventListener("click",   gotoToday);
+      el("prevDayBtn").addEventListener("click", () => gotoDay(-1));
+      el("nextDayBtn").addEventListener("click", () => gotoDay(1));
+
+      el("exportBtn").addEventListener("click",   exportCSV);
+      el("addEntryBtn").addEventListener("click", openModalAddEntry);
+
+      el("modalCloseBtn").addEventListener("click",       closeModal);
+      el("modalCloseBtnBottom").addEventListener("click", closeModal);
+      el("modalSaveBtn").addEventListener("click",        saveModal);
+      el("modalDeleteBtn").addEventListener("click",      deleteModalSession);
+
+      el("modalBackdrop").addEventListener("click", e => {
+        if (e.target === el("modalBackdrop")) closeModal();
+      });
+
+      el("historyList").addEventListener("click", e => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        const day = t.getAttribute("data-day");
+        if (day) { state.selectedDayISO = day; save(); render(); }
+      });
+
+      el("selectedDayEntries").addEventListener("click", e => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        const editId = t.getAttribute("data-edit-entry");
+        if (editId) {
+          const running = getRunningSession();
+          if (running && running.id === editId) { running.endISO = new Date().toISOString(); save(); }
+          openModalForSession(editId); return;
+        }
+        const deleteId = t.getAttribute("data-delete-entry");
+        if (deleteId) deleteEntryById(deleteId);
+      });
+
+      setInterval(render, 1000);
+      render();
+    }
+
+    init();
+  </script>
 </body>
 </html>

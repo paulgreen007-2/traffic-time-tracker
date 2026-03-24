@@ -551,7 +551,7 @@
       const daySessions = sessionsForDay(dayISO)
         .map(s => ({ ...s, secs: secondsOfSessionWithinDay(s, dayISO) }))
         .filter(s => s.secs > 0)
-        .sort((a,b) => new Date(a.startISO) - new Date(b.startISO));
+        .sort((a,b) => new Date(b.startISO) - new Date(a.startISO));
 
       if (daySessions.length === 0) {
         container.innerHTML = `<div class="emptyState">No entries for this day yet.</div>`;
